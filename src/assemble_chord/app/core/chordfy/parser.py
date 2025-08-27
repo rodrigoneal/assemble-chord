@@ -4,15 +4,15 @@ import re
 def parser_standard_chord_name(chord_str: str, bass: str | None = None) -> str:
     """Realiza as normalizações de notação PT -> EN
 
-	Arguments:
-		chord_str -- A string representando o acorde a ser normalizado.
+    Arguments:
+            chord_str -- A string representando o acorde a ser normalizado.
 
-	Keyword Arguments:
-		bass -- A nota do baixo (default: {None})
+    Keyword Arguments:
+            bass -- A nota do baixo (default: {None})
 
-	Returns:
-		Uma string representando o acorde normalizado.
-	"""
+    Returns:
+            Uma string representando o acorde normalizado.
+    """
     if not chord_str:
         return ""
 

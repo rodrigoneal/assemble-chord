@@ -1,5 +1,3 @@
-from music21 import pitch
-
 CHROMATIC_NOTES = [
     ["C"],
     ["C#", "Db"],
@@ -34,7 +32,7 @@ def find_note_positions_on_string(open_note: str, target_note: str, frets: int):
            Returns:
                    list: Lista de trastes onde a nota alvo é encontrada
     """
-    
+
     open_note = open_note.strip().capitalize()
     target_note = target_note.strip().capitalize()
 

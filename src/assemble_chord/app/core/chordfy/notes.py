@@ -1,8 +1,7 @@
 from music21 import chord, harmony, interval
 
 from src.assemble_chord.app.core.chordfy import util
-from src.assemble_chord.app.core.chordfy.parser import \
-    parser_standard_chord_name
+from src.assemble_chord.app.core.chordfy.parser import parser_standard_chord_name
 from src.assemble_chord.app.core.entity.chord import ChordEntity, Note
 
 

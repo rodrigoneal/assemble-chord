@@ -39,4 +39,4 @@ jobs:
       # 5. Roda os testes com pytest
       - name: Run tests
         run: |
-          poetry run pytest
+          poetry run task test
