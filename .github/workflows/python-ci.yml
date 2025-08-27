@@ -1,0 +1,42 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checa o código
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Configura Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # escolha sua versão
+
+      # 3. Instala Poetry
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # 4. Instala dependências do projeto
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-ansi
+
+      # 5. Roda os testes com pytest
+      - name: Run tests
+        run: |
+          poetry run pytest

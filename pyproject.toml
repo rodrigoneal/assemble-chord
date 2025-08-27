@@ -1,0 +1,28 @@
+[project]
+name = "assemble-chord"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "rodrigoneal",email = "rodrigho2006@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pychord (>=1.2.2,<2.0.0)",
+    "fastapi[standard] (>=0.116.1,<0.117.0)",
+    "pytest (>=8.4.1,<9.0.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "music21 (>=9.7.1,<10.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "assemble_chord", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.10"
+isort = "^6.0.1"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
