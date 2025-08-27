@@ -22,7 +22,7 @@ class ChordEntity(BaseModel):
     root: str
     chord: str
     notes: list[Note]
-    quality: str | None = None
+    extensions: str | None = None
     bass: str | None = None
 
     @property

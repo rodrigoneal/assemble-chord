@@ -1,15 +1,15 @@
 import pytest
 
-from src.assemble_chord.app.core.chordfy.create import parse_chord_with_extensions
+from src.assemble_chord.app.core.chordfy.notes import get_notes_from_chord
 
 
 @pytest.mark.parametrize(
     "chord_str, bass, expected",
     [
+        ("Absus4", None, ["Ab", "Db", "Eb"]),
         ("G7", None, ["G", "B", "D", "F"]),
         ("C/Bb", "Bb", ["C", "E", "G", "Bb"]),
         ("G/F", "F", ["G", "B", "D", "F"]),
-        ("Absus4", None, ["Ab", "Db", "Eb"]),
         ("A7(#9)", None, ["A", "C#", "E", "G", "B#"]),
         ("A", None, ["A", "C#", "E"]),
         ("A7/C#", "C#", ["A", "C#", "E", "G"]),
@@ -27,13 +27,6 @@ from src.assemble_chord.app.core.chordfy.create import parse_chord_with_extensio
     ],
 )
 def test_parse_chord_with_extensions(chord_str, bass, expected):
-    result = parse_chord_with_extensions(chord_str)
+    result = get_notes_from_chord(chord_str)
     assert result.all_notes == expected
     assert result.bass == bass
-
-
-# def test_escala_afinacao():
-#     result = parse_chord_with_extensions("C")
-#     for nota in result.all_notes:
-#         positions = find_note_positions_on_string("D#", nota, 24)
-#         breakpoint()

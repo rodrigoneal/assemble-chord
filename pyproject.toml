@@ -1,7 +1,7 @@
 [project]
 name = "assemble-chord"
 version = "0.1.0"
-description = ""
+description = "Ferramenta para montagem de acordes com foco no cavaquinho"
 authors = [
     {name = "rodrigoneal",email = "rodrigho2006@gmail.com"}
 ]
