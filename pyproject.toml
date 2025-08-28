@@ -20,6 +20,7 @@ dependencies = [
 packages = [{include = "assemble_chord", from = "src"}]
 
 [tool.taskipy.tasks]
+pre_test = "isort . && ruff format ."
 test = "coverage run -m pytest "
 lint = "isort . && ruff format ."
 check = "ruff check ."

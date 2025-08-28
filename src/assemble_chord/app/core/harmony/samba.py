@@ -1,5 +1,7 @@
 from music21 import pitch
 
+from src.assemble_chord.app.exceptions.harmony import SambaProgressionError
+
 
 def samba_progression(root_note: str, mode="major"):
     """
@@ -23,4 +25,4 @@ def samba_progression(root_note: str, mode="major"):
         return [i, V7, iv, V7_final]
 
     else:
-        raise ValueError("Mode deve ser 'major' ou 'minor'")
+        raise SambaProgressionError("Mode deve ser 'major' ou 'minor'")

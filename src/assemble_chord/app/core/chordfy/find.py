@@ -1,3 +1,5 @@
+from src.assemble_chord.app.exceptions.chrods import FindChordError
+
 CHROMATIC_NOTES = [
     ["C"],
     ["C#", "Db"],
@@ -37,9 +39,9 @@ def find_note_positions_on_string(open_note: str, target_note: str, frets: int):
     target_note = target_note.strip().capitalize()
 
     if open_note not in NOTE_TO_INDEX:
-        raise ValueError(f"Nota de afinação inválida: {open_note}")
+        raise FindChordError(f"Nota de afinação inválida: {open_note}")
     if target_note not in NOTE_TO_INDEX:
-        raise ValueError(f"Nota alvo inválida: {target_note}")
+        raise FindChordError(f"Nota alvo inválida: {target_note}")
 
     open_index = NOTE_TO_INDEX[open_note]
     target_index = NOTE_TO_INDEX[target_note]
