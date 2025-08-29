@@ -1,55 +1,60 @@
+from music21 import interval, pitch
+
 from src.assemble_chord.app.exceptions.chrods import FindChordError
 
-CHROMATIC_NOTES = [
-    ["C"],
-    ["C#", "Db"],
-    ["D"],
-    ["D#", "Eb"],
-    ["E"],
-    ["F"],
-    ["F#", "Gb"],
-    ["G"],
-    ["G#", "Ab"],
-    ["A"],
-    ["A#", "Bb"],
-    ["B"],
-]
 
-NOTE_TO_INDEX = {note: i for i, names in enumerate(CHROMATIC_NOTES) for note in names}
-
-
-def find_note_positions_on_string(open_note: str, target_note: str, frets: int):
+def normalize_note(note: str) -> str:
     """
-    Retorna em quais trastes de uma única corda a nota desejada aparece.
-
-           Arguments:
-                   open_note -- Nota da corda
-                   target_note -- Nota a ser encontrada
-                   frets -- Número de trastes a considerar
-
-           Raises:
-                   ValueError: Se a nota de afinação for inválida
-                   ValueError: Se a nota alvo for inválida
-
-           Returns:
-                   list: Lista de trastes onde a nota alvo é encontrada
+    Normaliza entrada para formato aceito pelo music21.
     """
+    return note.strip().capitalize()
 
-    open_note = open_note.strip().capitalize()
-    target_note = target_note.strip().capitalize()
 
-    if open_note not in NOTE_TO_INDEX:
-        raise FindChordError(f"Nota de afinação inválida: {open_note}")
-    if target_note not in NOTE_TO_INDEX:
-        raise FindChordError(f"Nota alvo inválida: {target_note}")
+def find_note_on_string(open_note: str, fret: int) -> list[str]:
+    """
+    Retorna a nota (com enarmonias) pressionada em uma corda afinada em `open_note`
+    na casa `fret`.
 
-    open_index = NOTE_TO_INDEX[open_note]
-    target_index = NOTE_TO_INDEX[target_note]
+    Exemplo:
+        find_note_on_string("D", 5) -> ["G"]
+        find_note_on_string("E", 1) -> ["F", "E#"]
+    """
+    try:
+        open_pitch = pitch.Pitch(normalize_note(open_note))
+    except Exception:
+        raise FindChordError(f"Corda {open_note} não reconhecida.")
+
+    # cada casa equivale a 1 semitom
+    pressed_note = open_pitch.transpose(fret)
+
+    # pega enarmonia
+    enharmonic = pressed_note.getEnharmonic()
+
+    if pressed_note.name != enharmonic.name:
+        return [pressed_note.name, enharmonic.name]
+    return [pressed_note.name]
+
+
+def find_note_positions_on_string(
+    open_note: str, target_note: str, frets: int
+) -> list[int]:
+    """
+    Retorna em quais trastes de uma corda a nota desejada aparece.
+    """
+    try:
+        open_pitch = pitch.Pitch(normalize_note(open_note))
+        target_pitch = pitch.Pitch(normalize_note(target_note))
+    except Exception:
+        raise FindChordError(f"Nota inválida: {open_note} ou {target_note}")
 
     trastes = []
-    for fret in range(frets + 1):  # inclui a corda solta (traste 0)
-        note_index = (open_index + fret) % 12
-        if note_index == target_index:
+    for fret in range(frets + 1):  # inclui a corda solta
+        pressed_note = open_pitch.transpose(fret)
+
+        # compara por classe de altura (independente de enarmonia)
+        if pressed_note.pitchClass == target_pitch.pitchClass:
             trastes.append(fret)
+    if not trastes:
+        raise FindChordError(f"Nota {target_note} não encontrada na corda {open_note}.")
 
     return trastes
