@@ -10,6 +10,7 @@ from src.assemble_chord.app.core.chordfy.parser import (
     simplify_chord,
 )
 from src.assemble_chord.app.core.chordfy.util import get_bass
+from src.assemble_chord.app.core.harmony.enums import HarmonicTypes
 from src.assemble_chord.app.exceptions.harmony import NotaInvalidaError
 
 
@@ -93,3 +94,93 @@ def dominant_secondary(acorde: str, proximo_acorde: str, tonalidade: str) -> str
         # Caso diatônico, retorna numeral normal
         rn = roman.romanNumeralFromChord(c, t)
         return rn.figure
+
+
+def harmonic_field_with_function(
+    tonica: str, tipo: HarmonicTypes
+) -> dict[str, tuple[str, str]]:
+    """
+    Gera o campo harmônico para uma tonalidade e tipo especificados, retornando
+    cada acorde junto com sua função harmônica (Tônica, Subdominante, Dominante).
+
+    Arguments:
+        tonica -- A tônica da tonalidade (ex: "C", "D#", "Bb")
+        tipo -- Tipo do campo harmônico ("maior", "menor_natural",
+                "menor_harmonico", "menor_melodico")
+
+    Returns:
+        Um dicionário {grau: (acorde, funcao)}
+    """
+
+    def music_21_to_music(chord: str) -> str:
+        return chord.replace("-", "b")
+
+    # Graus de cada tipo de campo
+    graus_dict = {
+        "maior": ["I", "ii", "iii", "IV", "V", "vi", "viiø"],
+        "menor_natural": ["i", "iiø", "III", "iv", "v", "VI", "VII"],
+        "menor_harmonico": ["i", "iiø", "III+", "iv", "V", "VI", "vii°"],
+        "menor_melodico": ["i", "ii", "III+", "IV", "V", "viø", "viiø"],
+    }
+
+    # Função harmônica de cada grau por tipo
+    funcoes_dict = {
+        "maior": {
+            "Tonica": ["I", "iii", "vi"],
+            "Subdominante": ["ii", "IV"],
+            "Dominante": ["V", "viiø"],
+        },
+        "menor_natural": {
+            "Tonica": ["i", "III", "VI"],
+            "Subdominante": ["iiø", "iv"],
+            "Dominante": ["v", "VII"],
+        },
+        "menor_harmonico": {
+            "Tonica": ["i", "III+", "VI"],
+            "Subdominante": ["iiø", "iv"],
+            "Dominante": ["V", "vii°"],
+        },
+        "menor_melodico": {
+            "Tonica": ["i", "III+", "viø"],
+            "Subdominante": ["ii", "IV"],
+            "Dominante": ["V", "viiø"],
+        },
+    }
+
+    tonalidade = key.Key(tonica if tipo == "maior" else tonica + "m")
+    graus = graus_dict[tipo]
+    acordes = {}
+
+    for grau in graus:
+        rn = roman.RomanNumeral(grau, tonalidade)
+
+        # Determina acorde
+        if rn.isMajorTriad():
+            if grau == "V":
+                acorde = rn.root().name + "7"
+            elif tipo == "menor_natural" and grau == "VII":
+                acorde = rn.root().name + "7"
+            elif tipo == "menor_melodico" and grau == "IV":
+                acorde = rn.root().name + "7"
+            else:
+                acorde = rn.root().name + "7M"
+        elif rn.isMinorTriad():
+            acorde = rn.root().name + "m7"
+        elif rn.isDiminishedTriad():
+            acorde = rn.root().name + "m7(b5)"
+        elif rn.isAugmentedTriad():
+            acorde = rn.root().name + "7M(#5)"
+        else:
+            acorde = rn.figure
+
+        acorde = music_21_to_music(acorde)
+
+        # Determina função harmônica
+        funcao = next(
+            (f for f, graus_f in funcoes_dict[tipo].items() if grau in graus_f),
+            "Desconhecida",
+        )
+
+        acordes[grau] = (acorde, funcao)
+
+    return acordes

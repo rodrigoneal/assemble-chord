@@ -1,8 +1,10 @@
 import pytest
 
+from src.assemble_chord.app.core.harmony.enums import HarmonicTypes
 from src.assemble_chord.app.core.harmony.music import (
     detect_music_keys,
     dominant_secondary,
+    harmonic_field_with_function,
 )
 from src.assemble_chord.app.core.harmony.samba import samba_progression
 from src.assemble_chord.app.exceptions.harmony import SambaProgressionError
@@ -69,3 +71,174 @@ def test_se_pega_o_tom_da_musica(seq, esperado):
 def test_dominant_secondary(acorde, proximo, tonalidade, esperado):
     resultado = dominant_secondary(acorde, proximo, tonalidade)
     assert resultado == esperado
+
+
+@pytest.mark.parametrize(
+    "tonica,tipo,esperado",
+    [
+        (
+            "C",
+            "maior",
+            {
+                "I": ("C7M", "Tonica"),
+                "ii": ("Dm7", "Subdominante"),
+                "iii": ("Em7", "Tonica"),
+                "IV": ("F7M", "Subdominante"),
+                "V": ("G7", "Dominante"),
+                "vi": ("Am7", "Tonica"),
+                "viiø": ("Bm7(b5)", "Dominante"),
+            },
+        ),
+        (
+            "D",
+            "maior",
+            {
+                "I": ("D7M", "Tonica"),
+                "ii": ("Em7", "Subdominante"),
+                "iii": ("F#m7", "Tonica"),
+                "IV": ("G7M", "Subdominante"),
+                "V": ("A7", "Dominante"),
+                "vi": ("Bm7", "Tonica"),
+                "viiø": ("C#m7(b5)", "Dominante"),
+            },
+        ),
+        (
+            "E",
+            "maior",
+            {
+                "I": ("E7M", "Tonica"),
+                "ii": ("F#m7", "Subdominante"),
+                "iii": ("G#m7", "Tonica"),
+                "IV": ("A7M", "Subdominante"),
+                "V": ("B7", "Dominante"),
+                "vi": ("C#m7", "Tonica"),
+                "viiø": ("D#m7(b5)", "Dominante"),
+            },
+        ),
+    ],
+)
+def test_campo_maior(tonica, tipo, esperado):
+    resultado = harmonic_field_with_function(tonica, tipo)
+    assert resultado == esperado
+
+
+@pytest.mark.parametrize(
+    "tonica,tipo,esperado",
+    [
+        (
+            "C",
+            "menor_natural",
+            {
+                "i": ("Cm7", "Tonica"),
+                "iiø": ("Dm7(b5)", "Subdominante"),
+                "III": ("Eb7M", "Tonica"),
+                "iv": ("Fm7", "Subdominante"),
+                "v": ("Gm7", "Dominante"),
+                "VI": ("Ab7M", "Tonica"),
+                "VII": ("Bb7", "Dominante"),
+            },
+        ),
+        (
+            "A",
+            "menor_natural",
+            {
+                "i": ("Am7", "Tonica"),
+                "iiø": ("Bm7(b5)", "Subdominante"),
+                "III": ("C7M", "Tonica"),
+                "iv": ("Dm7", "Subdominante"),
+                "v": ("Em7", "Dominante"),
+                "VI": ("F7M", "Tonica"),
+                "VII": ("G7", "Dominante"),
+            },
+        ),
+    ],
+)
+def test_campo_menor_natural(tonica, tipo, esperado):
+    resultado = harmonic_field_with_function(tonica, tipo)
+    assert resultado == esperado
+
+
+@pytest.mark.parametrize(
+    "tonica,tipo,esperado",
+    [
+        (
+            "C",
+            "menor_harmonico",
+            {
+                "i": ("Cm7", "Tonica"),
+                "iiø": ("Dm7(b5)", "Subdominante"),
+                "III+": ("Eb7M(#5)", "Tonica"),
+                "iv": ("Fm7", "Subdominante"),
+                "V": ("G7", "Dominante"),
+                "VI": ("Ab7M", "Tonica"),
+                "vii°": ("Bm7(b5)", "Dominante"),
+            },
+        ),
+        (
+            "G",
+            "menor_harmonico",
+            {
+                "i": ("Gm7", "Tonica"),
+                "iiø": ("Am7(b5)", "Subdominante"),
+                "III+": ("Bb7M(#5)", "Tonica"),
+                "iv": ("Cm7", "Subdominante"),
+                "V": ("D7", "Dominante"),
+                "VI": ("Eb7M", "Tonica"),
+                "vii°": ("F#m7(b5)", "Dominante"),
+            },
+        ),
+    ],
+)
+def test_campo_menor_harmonico(tonica, tipo, esperado):
+    resultado = harmonic_field_with_function(tonica, tipo)
+    assert resultado == esperado
+
+
+@pytest.mark.parametrize(
+    "tonica,tipo,esperado",
+    [
+        (
+            "C",
+            "menor_melodico",
+            {
+                "i": ("Cm7", "Tonica"),
+                "ii": ("Dm7", "Subdominante"),
+                "III+": ("Eb7M(#5)", "Tonica"),
+                "IV": ("F7", "Subdominante"),
+                "V": ("G7", "Dominante"),
+                "viø": ("Am7(b5)", "Tonica"),
+                "viiø": ("Bm7(b5)", "Dominante"),
+            },
+        ),
+        (
+            "B",
+            "menor_melodico",
+            {
+                "i": ("Bm7", "Tonica"),
+                "ii": ("C#m7", "Subdominante"),
+                "III+": ("D7M(#5)", "Tonica"),
+                "IV": ("E7", "Subdominante"),
+                "V": ("F#7", "Dominante"),
+                "viø": ("G#m7(b5)", "Tonica"),
+                "viiø": ("A#m7(b5)", "Dominante"),
+            },
+        ),
+    ],
+)
+def test_campo_menor_melodico(tonica, tipo, esperado):
+    resultado = harmonic_field_with_function(tonica, tipo)
+    assert resultado == esperado
+
+
+@pytest.mark.parametrize("tonica", ["C", "D", "F#", "Bb"])
+def test_campo_maior_varias_tonicas(tonica):
+    # Apenas garante que todos os graus retornam algo válido
+    resultado = harmonic_field_with_function(tonica, "maior")
+    assert set(resultado.keys()) == {"I", "ii", "iii", "IV", "V", "vi", "viiø"}
+    # Verifica que cada valor é uma tupla (acorde, função) válida
+    assert all(
+        isinstance(v, tuple)
+        and len(v) == 2
+        and all(isinstance(x, str) and x for x in v)
+        for v in resultado.values()
+    )
